@@ -1,0 +1,67 @@
+﻿function clearPage()
+{
+    document.getElementById("ProductList").innerHTML = "";
+}
+function getData()
+{
+
+    let url = "api/Products"
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(p => drawData(p))
+        }).catch(error => { console.log(error); });
+
+}
+function tmp() {
+    getData();
+    getCategories();
+}
+function drawData(product) {
+    temp = document.getElementById("temp-card");
+    var clonProducts = temp.content.cloneNode(true);
+    var url =( "./images/"+ product.imageName);
+    clonProducts.querySelector(".price").innerHTML = '₪' + product.price;
+    clonProducts.querySelector(".description").innerHTML = product.description;
+    clonProducts.querySelector("img").src = url;
+
+    clonProducts.querySelector(".name").innerHTML = product.productName;
+    clonProducts.querySelector("button").addEventListener("click", () => { addToCart(product) });
+    document.getElementById("ProductList").appendChild(clonProducts);
+}
+var list = [];
+function addToCart(product)
+{
+    list.push(product);
+    sessionStorage.setItem("productListInCart", JSON.stringify(list));
+    document.getElementById("ItemsCountText").innerHTML = list.length
+}
+function getDataByCategory(id) {
+        let url = "api/Products/" + id
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(p => drawData(p))
+            }).catch(error => { console.log(error); });
+    }
+function showCategories(category) {
+    temp = document.getElementById("temp-category");
+    var clonCategory = temp.content.cloneNode(true);
+    clonCategory.querySelector(".OptionName").innerText = category.categoryName;
+    clonCategory.querySelector('input[type=checkbox]').setAttribute("id", category.categoryId);
+    clonCategory.querySelector(".checkbox").addEventListener("click", () => {
+        clearPage();
+        getDataByCategory(category.categoryId);
+    });
+    document.getElementById("filters").appendChild(clonCategory);
+
+
+}
+function getCategories() {
+        let url = "api/Categories"
+        fetch(url)
+            .then(res => res.json())
+            .then(data1 => {
+                data1.forEach(c => showCategories(c))
+            }).catch(error => { console.log(error); });
+ }
